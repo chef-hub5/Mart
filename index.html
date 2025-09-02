@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshMart - Your Online Supermarket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .dropdown:hover .dropdown-menu { display: block; }
+        .sticky-message { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            z-index: 1000; 
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .cart-count { min-width: 20px; height: 20px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <!-- Top Bar -->
+        <div class="bg-blue-600 text-white py-2">
+            <div class="container mx-auto px-4 flex justify-between items-center text-sm">
+                <div>📞 Call us: +234-800-FRESH-MART</div>
+                <div class="flex space-x-4">
+                    <button onclick="openModal('signInModal')" class="hover:underline">Sign In</button>
+                    <button onclick="openModal('createAccountModal')" class="hover:underline">Create Account</button>
+                    <button onclick="showSection('orderHistory')" class="hover:underline">Order History</button>
+                    <button onclick="openModal('profileModal')" class="hover:underline">Profile Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Header -->
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <button onclick="showSection('home')" class="flex items-center hover:opacity-80 transition-opacity">
+                        <img id="siteLogo" src="Images/freshmart-logo.png" alt="FreshMart Logo" class="h-8 sm:h-12 w-auto mr-2 sm:mr-3" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-8 w-8 sm:h-12 sm:w-12 bg-blue-600 rounded-lg flex items-center justify-center text-lg sm:text-2xl mr-2 sm:mr-3" style="display: none;">🛒</div>
+                        <h1 class="text-xl sm:text-3xl font-bold text-blue-600">FreshMart</h1>
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-2xl mx-4 sm:mx-8">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" oninput="searchProducts()">
+                        <button onclick="searchProducts()" class="absolute right-2 sm:right-3 top-2 sm:top-3 text-gray-500 hover:text-blue-600">🔍</button>
+                    </div>
+                </div>
+
+                <!-- Utility Icons -->
+                <div class="flex items-center space-x-3 sm:space-x-6">
+                    <button onclick="openModal('wishlistModal')" class="relative p-2 hover:text-blue-600">
+                        <span class="text-2xl">❤️</span>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="wishlistCount">0</span>
+                    </button>
+                    <button onclick="openModal('cartModal')" class="relative p-2 hover:text-blue-600">
+                        <span class="text-2xl">🛒</span>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="bg-blue-700 text-white">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto">
+                    <button onclick="showSection('home')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Home</button>
+                    
+                    <div class="dropdown relative">
+                        <button onclick="showSection('shop')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors flex items-center whitespace-nowrap text-sm sm:text-base">
+                            Shop <span class="ml-1">▼</span>
+                        </button>
+                        <div class="dropdown-menu absolute top-full left-0 bg-white text-black shadow-lg rounded-b-lg w-48 hidden z-50">
+                            <a href="#" onclick="filterProducts('fruits')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Fresh Fruits</a>
+                            <a href="#" onclick="filterProducts('vegetables')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Vegetables</a>
+                            <a href="#" onclick="filterProducts('dairy')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Dairy Products</a>
+                            <a href="#" onclick="filterProducts('meat')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Meat & Poultry</a>
+                            <a href="#" onclick="filterProducts('beverages')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Beverages</a>
+                        </div>
+                    </div>
+
+                    <button onclick="showSection('about')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">About Us</button>
+                    <button onclick="showSection('contact')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Contact</button>
+                    <button onclick="showSection('deals')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Special Deals</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
+                <div class="container mx-auto px-4 text-center">
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">Fresh Groceries Delivered</h2>
+                    <p class="text-lg sm:text-xl mb-8 max-w-2xl mx-auto">Get the freshest products delivered right to your doorstep</p>
+                    <button onclick="showSection('shop')" class="bg-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-100 transition-colors">Shop Now</button>
+                </div>
+            </div>
+
+            <!-- Featured Products -->
+            <div class="container mx-auto px-4 py-16">
+                <h3 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Featured Products</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    <div onclick="filterProducts('fruits')" class="bg-white rounded-lg shadow-md p-4 sm:p-6 text-center cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
+                        <div class="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden rounded-lg">
+                            <img id="category-fruits-image" src="Images/oranges.jpg" alt="Fresh Fruits Category - Apples, oranges, bananas and seasonal fruits" class="h-full w-auto object-contain rounded-lg hover:scale-110 transition-transform duration-300" onerror="this.style.display='none'; this.alt='Fresh fruits category image not available - showing apple icon instead'; this.nextElementSibling.style.display='block';">
+                            <div class="text-4xl sm:text-6xl hover:scale-110 transition-transform duration-300" style="display: none;">🍎</div>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Fresh Fruits</h4>
+                        <p class="text-sm sm:text-base text-gray-600">Organic & Fresh</p>
+                    </div>
+                    <div onclick="filterProducts('vegetables')" class="bg-white rounded-lg shadow-md p-4 sm:p-6 text-center cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
+                        <div class="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden rounded-lg">
+                            <img id="category-vegetables-image" src="Images/lettuce.jpg" alt="Fresh Vegetables Category - Lettuce, tomatoes, carrots and leafy greens" class="h-full w-auto object-contain rounded-lg hover:scale-110 transition-transform duration-300" onerror="this.style.display='none'; this.alt='Fresh vegetables category image not available - showing lettuce icon instead'; this.nextElementSibling.style.display='block';">
+                            <div class="text-4xl sm:text-6xl hover:scale-110 transition-transform duration-300" style="display: none;">🥬</div>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Vegetables</h4>
+                        <p class="text-sm sm:text-base text-gray-600">Farm Fresh Daily</p>
+                    </div>
+                    <div onclick="filterProducts('dairy')" class="bg-white rounded-lg shadow-md p-4 sm:p-6 text-center cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
+                        <div class="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden rounded-lg">
+                            <img id="category-dairy-image" src="Images/milk.jpg" alt="Dairy Products Category - Milk, cheese, yogurt and fresh dairy items" class="h-full w-auto object-contain rounded-lg hover:scale-110 transition-transform duration-300" onerror="this.style.display='none'; this.alt='Dairy products category image not available - showing milk icon instead'; this.nextElementSibling.style.display='block';">
+                            <div class="text-4xl sm:text-6xl hover:scale-110 transition-transform duration-300" style="display: none;">🥛</div>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Dairy Products</h4>
+                        <p class="text-sm sm:text-base text-gray-600">Pure & Natural</p>
+                    </div>
+                    <div onclick="filterProducts('meat')" class="bg-white rounded-lg shadow-md p-4 sm:p-6 text-center cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 transform">
+                        <div class="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden rounded-lg">
+                            <img id="category-meat-image" src="Images/chicken.jpg" alt="Meat and Poultry Category - Fresh chicken, beef, fish and premium cuts" class="h-full w-auto object-contain rounded-lg hover:scale-110 transition-transform duration-300" onerror="this.style.display='none'; this.alt='Meat and poultry category image not available - showing meat icon instead'; this.nextElementSibling.style.display='block';">
+                            <div class="text-4xl sm:text-6xl hover:scale-110 transition-transform duration-300" style="display: none;">🥩</div>
+                        </div>
+                        <h4 class="text-lg sm:text-xl font-semibold text-gray-800 hover:text-blue-600 transition-colors">Meat & Poultry</h4>
+                        <p class="text-sm sm:text-base text-gray-600">Premium Quality</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shop Section -->
+        <section id="shop" class="section">
+            <div class="container mx-auto px-4 py-6 sm:py-8">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Our Products</h2>
+                
+                <!-- Filter Buttons -->
+                <div class="flex flex-wrap gap-2 sm:gap-4 mb-6 sm:mb-8">
+                    <button onclick="filterProducts('all')" class="filter-btn active bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base">All Products</button>
+                    <button onclick="filterProducts('fruits')" class="filter-btn bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white text-sm sm:text-base">Fruits</button>
+                    <button onclick="filterProducts('vegetables')" class="filter-btn bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white text-sm sm:text-base">Vegetables</button>
+                    <button onclick="filterProducts('dairy')" class="filter-btn bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white text-sm sm:text-base">Dairy</button>
+                    <button onclick="filterProducts('meat')" class="filter-btn bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white text-sm sm:text-base">Meat</button>
+                    <button onclick="filterProducts('beverages')" class="filter-btn bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white text-sm sm:text-base">Beverages</button>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    <!-- Products will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <div class="container mx-auto px-4 py-12 sm:py-16">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">About FreshMart</h2>
+                <div class="max-w-4xl mx-auto">
+                    <div class="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
+                        <div>
+                            <h3 class="text-xl sm:text-2xl font-semibold mb-4">Your Trusted Grocery Partner</h3>
+                            <p class="text-gray-600 mb-6 text-sm sm:text-base">For over 20 years, FreshMart has been committed to bringing you the freshest, highest quality groceries at affordable prices. We source directly from local farms and trusted suppliers to ensure you get the best products for your family.</p>
+                            <ul class="space-y-2">
+                                <li class="flex items-center"><span class="text-blue-600 mr-2">✓</span> Fresh products daily</li>
+                                <li class="flex items-center"><span class="text-blue-600 mr-2">✓</span> Competitive prices</li>
+                                <li class="flex items-center"><span class="text-blue-600 mr-2">✓</span> Fast delivery</li>
+                                <li class="flex items-center"><span class="text-blue-600 mr-2">✓</span> Quality guarantee</li>
+                            </ul>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-8xl mb-4">🏪</div>
+                            <p class="text-gray-600">Serving communities with pride</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <div class="container mx-auto px-4 py-12 sm:py-16">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Contact Us</h2>
+                <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 sm:gap-12">
+                    <div>
+                        <h3 class="text-xl sm:text-2xl font-semibold mb-6">Get in Touch</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">📍</span>
+                                <div>
+                                    <p class="font-semibold">Address</p>
+                                    <p class="text-gray-600">123 Market Street, Lagos, Nigeria</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">📞</span>
+                                <div>
+                                    <p class="font-semibold">Phone</p>
+                                    <p class="text-gray-600">+234-800-FRESH-MART</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">✉️</span>
+                                <div>
+                                    <p class="font-semibold">Email</p>
+                                    <p class="text-gray-600">info@freshmart.ng</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <form id="contactForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Name *</label>
+                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Email *</label>
+                                <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Subject *</label>
+                                <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Message *</label>
+                                <textarea required rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Special Deals Section -->
+        <section id="deals" class="section">
+            <div class="container mx-auto px-4 py-12 sm:py-16">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Special Deals</h2>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                    <div class="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-2xl font-bold mb-2">Weekend Special</h3>
+                        <p class="mb-3 sm:mb-4 text-sm sm:text-base">50% off on all fresh fruits</p>
+                        <p class="text-xs sm:text-sm opacity-90">Valid until Sunday</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-2xl font-bold mb-2">Bulk Purchase</h3>
+                        <p class="mb-3 sm:mb-4 text-sm sm:text-base">Buy 3 get 1 free on dairy products</p>
+                        <p class="text-xs sm:text-sm opacity-90">Limited time offer</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 sm:p-6">
+                        <h3 class="text-lg sm:text-2xl font-bold mb-2">New Customer</h3>
+                        <p class="mb-3 sm:mb-4 text-sm sm:text-base">20% off your first order</p>
+                        <p class="text-xs sm:text-sm opacity-90">Use code: WELCOME20</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order History Section -->
+        <section id="orderHistory" class="section">
+            <div class="container mx-auto px-4 py-12 sm:py-16">
+                <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Order History</h2>
+                <div class="max-w-4xl mx-auto">
+                    <div id="orderHistoryContent" class="bg-white rounded-lg shadow-md p-6">
+                        <p class="text-center text-gray-500 py-8">No orders found. Start shopping to see your order history!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">🛒 FreshMart</h3>
+                    <p class="text-gray-300 mb-4">Your trusted online supermarket delivering fresh groceries to your doorstep since 2003.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white">📘</a>
+                        <a href="#" class="text-gray-300 hover:text-white">📷</a>
+                        <a href="#" class="text-gray-300 hover:text-white">🐦</a>
+                        <a href="#" class="text-gray-300 hover:text-white">📺</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="showSection('home')" class="text-gray-300 hover:text-white">Home</a></li>
+                        <li><a href="#" onclick="showSection('shop')" class="text-gray-300 hover:text-white">Shop</a></li>
+                        <li><a href="#" onclick="showSection('about')" class="text-gray-300 hover:text-white">About Us</a></li>
+                        <li><a href="#" onclick="showSection('deals')" class="text-gray-300 hover:text-white">Special Deals</a></li>
+                        <li><a href="#" onclick="showSection('contact')" class="text-gray-300 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Categories</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="filterProducts('fruits')" class="text-gray-300 hover:text-white">Fresh Fruits</a></li>
+                        <li><a href="#" onclick="filterProducts('vegetables')" class="text-gray-300 hover:text-white">Vegetables</a></li>
+                        <li><a href="#" onclick="filterProducts('dairy')" class="text-gray-300 hover:text-white">Dairy Products</a></li>
+                        <li><a href="#" onclick="filterProducts('meat')" class="text-gray-300 hover:text-white">Meat & Poultry</a></li>
+                        <li><a href="#" onclick="filterProducts('beverages')" class="text-gray-300 hover:text-white">Beverages</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <p>📍 123 Market Street, Lagos, Nigeria</p>
+                        <p>📞 +234-800-FRESH-MART</p>
+                        <p>✉️ info@freshmart.ng</p>
+                        <p>🕒 Mon-Sat: 8AM-10PM</p>
+                        <p>🕒 Sunday: 10AM-8PM</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 FreshMart. All rights reserved. | Privacy Policy | Terms of Service</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Sticky Message Button -->
+    <div class="sticky-message">
+        <button onclick="openModal('messageModal')" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
+            💬
+        </button>
+    </div>
+
+    <!-- Modals -->
+    <!-- Sign In Modal -->
+    <div id="signInModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6">Sign In</h3>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Sign In</button>
+            </form>
+            <button onclick="closeModal('signInModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Create Account Modal -->
+    <div id="createAccountModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6">Create Account</h3>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Full Name</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email</label>
+                    <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Password</label>
+                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Confirm Password</label>
+                    <input type="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Create Account</button>
+            </form>
+            <button onclick="closeModal('createAccountModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Profile Settings Modal -->
+    <div id="profileModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Profile Settings</h3>
+            <form class="space-y-6">
+                <!-- Profile Photo Section -->
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl overflow-hidden">
+                        <img id="profilePhotoPreview" src="" alt="Profile Photo" class="w-full h-full object-cover hidden">
+                        <span id="profilePhotoPlaceholder">👤</span>
+                    </div>
+                    <input type="file" id="profilePhoto" accept="image/*" class="hidden" onchange="updateProfilePhoto(this)">
+                    <button type="button" onclick="document.getElementById('profilePhoto').click()" class="text-blue-600 hover:text-blue-700">Change Photo</button>
+                </div>
+
+                <!-- Site Logo Section -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Site Logo</h4>
+                    <div class="text-center mb-4">
+                        <div class="w-32 h-16 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
+                            <img id="logoPreview" src="Images/freshmart-logo.png" alt="Site Logo Preview" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <input type="file" id="siteLogoUpload" accept="image/*" class="hidden" onchange="updateSiteLogo(this)">
+                        <button type="button" onclick="document.getElementById('siteLogoUpload').click()" class="text-blue-600 hover:text-blue-700 text-sm">Change Site Logo</button>
+                        <p class="text-xs text-gray-500 mt-2">Recommended: 200x80px, PNG or JPG format</p>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Personal Information</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">First Name *</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Last Name *</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Date of Birth</label>
+                        <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Gender</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Contact Information</h4>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email Address *</label>
+                        <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Phone Number *</label>
+                        <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Alternative Phone</label>
+                        <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Address Information -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Address Information</h4>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Street Address *</label>
+                        <textarea required rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">City *</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">State *</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Postal Code</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Country *</label>
+                            <select required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Select Country</option>
+                                <option value="nigeria">Nigeria</option>
+                                <option value="ghana">Ghana</option>
+                                <option value="kenya">Kenya</option>
+                                <option value="south-africa">South Africa</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Preferences</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-blue-600">
+                            <span>Receive email notifications about new products</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-blue-600">
+                            <span>Receive SMS notifications about order updates</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-blue-600">
+                            <span>Receive promotional offers and discounts</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-3 text-blue-600">
+                            <span>Allow data usage for personalized recommendations</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Privacy Policy and Terms Agreement -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-800">Legal Agreements</h4>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <label class="flex items-start">
+                                <input type="checkbox" required class="mr-3 mt-1 text-blue-600">
+                                <span class="text-sm">
+                                    I agree to the <button type="button" onclick="openModal('privacyPolicyModal')" class="text-blue-600 hover:underline">Privacy Policy</button> and understand how my personal data will be processed.
+                                </span>
+                            </label>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <label class="flex items-start">
+                                <input type="checkbox" required class="mr-3 mt-1 text-blue-600">
+                                <span class="text-sm">
+                                    I accept the <button type="button" onclick="openModal('termsOfServiceModal')" class="text-blue-600 hover:underline">Terms of Service</button> and agree to abide by all platform rules and regulations.
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+            </form>
+            <button onclick="closeModal('profileModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Shopping Cart</h3>
+            <div id="cartItems">
+                <p class="text-center text-gray-500 py-8">Your cart is empty</p>
+            </div>
+            <div id="cartTotal" class="hidden border-t pt-4 mt-4">
+                <div class="flex justify-between items-center text-xl font-bold">
+                    <span>Total: ₦<span id="totalAmount">0</span></span>
+                    <button onclick="proceedToCheckout()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">Checkout</button>
+                </div>
+            </div>
+            <button onclick="closeModal('cartModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div id="wishlistModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Wishlist</h3>
+            <div id="wishlistItems">
+                <p class="text-center text-gray-500 py-8">Your wishlist is empty</p>
+            </div>
+            <button onclick="closeModal('wishlistModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-6">Send Message</h3>
+            <form id="messageForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Name *</label>
+                    <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Email *</label>
+                    <input type="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Message *</label>
+                    <textarea required rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Send Message</button>
+            </form>
+            <button onclick="closeModal('messageModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyPolicyModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Privacy Policy</h3>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">1. Information We Collect</h4>
+                    <p>We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us. This includes:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Personal information (name, email address, phone number, address)</li>
+                        <li>Payment information (credit card details, billing address)</li>
+                        <li>Order history and preferences</li>
+                        <li>Communication preferences</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">2. How We Use Your Information</h4>
+                    <p>We use the information we collect to:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Process and fulfill your orders</li>
+                        <li>Communicate with you about your orders and account</li>
+                        <li>Provide customer support</li>
+                        <li>Send promotional materials (with your consent)</li>
+                        <li>Improve our services and user experience</li>
+                        <li>Comply with legal obligations</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">3. Information Sharing</h4>
+                    <p>We do not sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>With delivery partners to fulfill your orders</li>
+                        <li>With payment processors to handle transactions</li>
+                        <li>When required by law or to protect our rights</li>
+                        <li>With your explicit consent</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">4. Data Security</h4>
+                    <p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. This includes encryption of sensitive data and regular security assessments.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">5. Your Rights</h4>
+                    <p>You have the right to:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Access and update your personal information</li>
+                        <li>Delete your account and personal data</li>
+                        <li>Opt-out of marketing communications</li>
+                        <li>Request a copy of your data</li>
+                        <li>File a complaint with relevant authorities</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">6. Cookies and Tracking</h4>
+                    <p>We use cookies and similar technologies to enhance your browsing experience, analyze site traffic, and personalize content. You can control cookie settings through your browser preferences.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">7. Contact Us</h4>
+                    <p>If you have any questions about this Privacy Policy, please contact us at privacy@freshmart.ng or call +234-800-FRESH-MART.</p>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <p class="text-xs"><strong>Last Updated:</strong> January 2024</p>
+                </div>
+            </div>
+            <button onclick="closeModal('privacyPolicyModal')" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">Close</button>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="termsOfServiceModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Terms of Service</h3>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">1. Acceptance of Terms</h4>
+                    <p>By accessing and using FreshMart's services, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">2. Use License</h4>
+                    <p>Permission is granted to temporarily use FreshMart's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Modify or copy the materials</li>
+                        <li>Use the materials for any commercial purpose or for any public display</li>
+                        <li>Attempt to reverse engineer any software contained on the website</li>
+                        <li>Remove any copyright or other proprietary notations from the materials</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">3. Account Responsibilities</h4>
+                    <p>When you create an account with us, you must provide information that is accurate, complete, and current at all times. You are responsible for:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>Safeguarding your password and account information</li>
+                        <li>All activities that occur under your account</li>
+                        <li>Notifying us immediately of any unauthorized use</li>
+                        <li>Ensuring your contact information is up to date</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">4. Orders and Payment</h4>
+                    <p>All orders are subject to acceptance and availability. We reserve the right to refuse or cancel any order for any reason. Payment must be received before order processing. Prices are subject to change without notice.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">5. Delivery Policy</h4>
+                    <p>We strive to deliver orders within the specified timeframe. However, delivery times are estimates and may vary due to factors beyond our control. Risk of loss and title for items pass to you upon delivery.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">6. Return and Refund Policy</h4>
+                    <p>Fresh and perishable items cannot be returned unless they are damaged or defective upon delivery. Non-perishable items may be returned within 7 days of delivery in original condition. Refunds will be processed within 5-10 business days.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">7. Prohibited Uses</h4>
+                    <p>You may not use our service:</p>
+                    <ul class="list-disc ml-6 mt-2">
+                        <li>For any unlawful purpose or to solicit others to perform unlawful acts</li>
+                        <li>To violate any international, federal, provincial, or state regulations, rules, laws, or local ordinances</li>
+                        <li>To infringe upon or violate our intellectual property rights or the intellectual property rights of others</li>
+                        <li>To harass, abuse, insult, harm, defame, slander, disparage, intimidate, or discriminate</li>
+                        <li>To submit false or misleading information</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">8. Limitation of Liability</h4>
+                    <p>In no case shall FreshMart, our directors, officers, employees, affiliates, agents, contractors, interns, suppliers, service providers, or licensors be liable for any injury, loss, claim, or any direct, indirect, incidental, punitive, special, or consequential damages of any kind.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">9. Governing Law</h4>
+                    <p>These terms and conditions are governed by and construed in accordance with the laws of Nigeria and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg mb-2">10. Contact Information</h4>
+                    <p>Questions about the Terms of Service should be sent to us at legal@freshmart.ng or +234-800-FRESH-MART.</p>
+                </div>
+
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <p class="text-xs"><strong>Last Updated:</strong> January 2024</p>
+                </div>
+            </div>
+            <button onclick="closeModal('termsOfServiceModal')" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">Close</button>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
+            <div id="productModalContent">
+                <!-- Product details will be populated by JavaScript -->
+            </div>
+            <button onclick="closeModal('productModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Checkout</h3>
+            <form id="checkoutForm" class="space-y-6">
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Delivery Information</h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Full Name *</label>
+                            <input type="text" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Phone *</label>
+                            <input type="tel" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium mb-2">Delivery Address *</label>
+                        <textarea required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Payment Method</h4>
+                    <div class="space-y-3">
+                        <label class="flex items-center">
+                            <input type="radio" name="paymentMethod" value="bank" class="mr-3" onchange="togglePaymentFields()">
+                            <span>Bank Transfer</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="paymentMethod" value="delivery" class="mr-3" onchange="togglePaymentFields()">
+                            <span>Pay on Delivery</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="bankTransferFields" class="hidden">
+                    <h5 class="font-semibold mb-2">Bank Details</h5>
+                    <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                        <p><strong>Bank:</strong> First Bank Nigeria</p>
+                        <p><strong>Account Name:</strong> FreshMart Limited</p>
+                        <p><strong>Account Number:</strong> 1234567890</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Upload Payment Receipt *</label>
+                        <input type="file" required accept="image/*,.pdf" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center text-xl font-bold mb-4">
+                        <span>Total: ₦<span id="checkoutTotal">0</span></span>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">Place Order</button>
+                </div>
+            </form>
+            <button onclick="closeModal('checkoutModal')" class="mt-4 text-gray-500 hover:text-gray-700">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample products data with proper image paths
+        const products = [
+            { 
+                id: 1, 
+                name: 'Fresh Apples', 
+                price: 500, 
+                category: 'fruits', 
+                image: 'Images/apples.jpg',
+                alt: 'Fresh red and green apples - crisp, sweet, and perfect for snacking',
+                description: 'Crisp and sweet apples perfect for snacking',
+                emoji: '🍎' 
+            },
+            { 
+                id: 2, 
+                name: 'Bananas', 
+                price: 300, 
+                category: 'fruits', 
+                image: 'Images/bananas.jpg',
+                alt: 'Fresh yellow bananas - ripe, sweet, and rich in potassium',
+                description: 'Ripe yellow bananas rich in potassium',
+                emoji: '🍌' 
+            },
+            { 
+                id: 3, 
+                name: 'Oranges', 
+                price: 400, 
+                category: 'fruits', 
+                image: 'Images/oranges.jpg',
+                alt: 'Fresh juicy oranges - vitamin C rich citrus fruits',
+                description: 'Juicy oranges packed with vitamin C',
+                emoji: '🍊' 
+            },
+            { 
+                id: 4, 
+                name: 'Tomatoes', 
+                price: 250, 
+                category: 'vegetables', 
+                image: 'Images/tomatoes.jpg',
+                alt: 'Fresh red tomatoes - perfect for cooking and salads',
+                description: 'Fresh red tomatoes perfect for cooking',
+                emoji: '🍅' 
+            },
+            { 
+                id: 5, 
+                name: 'Carrots', 
+                price: 200, 
+                category: 'vegetables', 
+                image: 'Images/carrots.jpg',
+                alt: 'Fresh orange carrots - crunchy and rich in beta-carotene',
+                description: 'Crunchy carrots rich in beta-carotene',
+                emoji: '🥕' 
+            },
+            { 
+                id: 6, 
+                name: 'Lettuce', 
+                price: 150, 
+                category: 'vegetables', 
+                image: 'Images/lettuce.jpg',
+                alt: 'Fresh green lettuce - crisp leafy greens for salads',
+                description: 'Crisp green lettuce perfect for salads',
+                emoji: '🥬' 
+            },
+            { 
+                id: 7, 
+                name: 'Fresh Milk', 
+                price: 800, 
+                category: 'dairy', 
+                image: 'Images/milk.jpg',
+                alt: 'Fresh whole milk - rich in calcium and protein',
+                description: 'Pure fresh milk rich in calcium',
+                emoji: '🥛' 
+            },
+            { 
+                id: 8, 
+                name: 'Cheese', 
+                price: 1200, 
+                category: 'dairy', 
+                image: 'Images/cheese.jpg',
+                alt: 'Premium cheese blocks - aged and flavorful dairy product',
+                description: 'Premium aged cheese with rich flavor',
+                emoji: '🧀' 
+            },
+            { 
+                id: 9, 
+                name: 'Yogurt', 
+                price: 600, 
+                category: 'dairy', 
+                image: 'Images/yogurt.jpg',
+                alt: 'Creamy yogurt - probiotic-rich dairy product',
+                description: 'Creamy yogurt with live probiotics',
+                emoji: '🥛' 
+            },
+            { 
+                id: 10, 
+                name: 'Chicken Breast', 
+                price: 2500, 
+                category: 'meat', 
+                image: 'Images/chicken.jpg',
+                alt: 'Fresh chicken breast - lean protein for healthy meals',
+                description: 'Lean chicken breast high in protein',
+                emoji: '🍗' 
+            },
+            { 
+                id: 11, 
+                name: 'Beef Steak', 
+                price: 3500, 
+                category: 'meat', 
+                image: 'Images/beef.jpg',
+                alt: 'Premium beef steak - tender cuts perfect for grilling',
+                description: 'Premium beef cuts perfect for grilling',
+                emoji: '🥩' 
+            },
+            { 
+                id: 12, 
+                name: 'Fish Fillet', 
+                price: 2000, 
+                category: 'meat', 
+                image: 'Images/fish.jpg',
+                alt: 'Fresh fish fillet - omega-3 rich seafood',
+                description: 'Fresh fish fillet rich in omega-3',
+                emoji: '🐟' 
+            },
+            { 
+                id: 13, 
+                name: 'Orange Juice', 
+                price: 700, 
+                category: 'beverages', 
+                image: 'Images/orange-juice.jpg',
+                alt: 'Fresh orange juice - 100% natural citrus beverage',
+                description: '100% natural orange juice',
+                emoji: '🧃' 
+            },
+            { 
+                id: 14, 
+                name: 'Water Bottle', 
+                price: 100, 
+                category: 'beverages', 
+                image: 'Images/water.jpg',
+                alt: 'Pure drinking water - clean and refreshing hydration',
+                description: 'Pure drinking water for hydration',
+                emoji: '💧' 
+            },
+            { 
+                id: 15, 
+                name: 'Soft Drink', 
+                price: 300, 
+                category: 'beverages', 
+                image: 'Images/soft-drink.jpg',
+                alt: 'Refreshing soft drink - carbonated beverage',
+                description: 'Refreshing carbonated soft drink',
+                emoji: '🥤' 
+            }
+        ];
+
+        let cart = [];
+        let wishlist = [];
+        let orderHistory = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('home');
+            displayProducts();
+        });
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+            }
+
+            // If showing shop section, ensure products are displayed
+            if (sectionId === 'shop') {
+                displayProducts();
+            }
+            
+            // If showing order history, display orders
+            if (sectionId === 'orderHistory') {
+                displayOrderHistory();
+            }
+        }
+
+        // Product filtering
+        function filterProducts(category) {
+            currentFilter = category;
+            displayProducts();
+            
+            // Update filter button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            event.target.classList.add('active', 'bg-blue-600', 'text-white');
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+
+            // Show shop section when filtering
+            showSection('shop');
+        }
+
+        // Search products
+        function searchProducts() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            displayProducts();
+            if (searchQuery) {
+                showSection('shop');
+            }
+        }
+
+        // Display products
+        function displayProducts() {
+            const grid = document.getElementById('productsGrid');
+            let filteredProducts = products;
+            
+            // Filter by category
+            if (currentFilter !== 'all') {
+                filteredProducts = filteredProducts.filter(p => p.category === currentFilter);
+            }
+            
+            // Filter by search query
+            if (searchQuery) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchQuery) || 
+                    p.category.toLowerCase().includes(searchQuery)
+                );
+            }
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">No products found matching your search.</div>';
+                return;
+            }
+            
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="openProductModal(${product.id})">
+                    <div class="h-40 sm:h-48 mb-3 sm:mb-4 bg-gray-100 rounded-lg overflow-hidden">
+                        <img id="product-image-${product.id}" 
+                             src="${product.image}" 
+                             alt="${product.alt}" 
+                             class="w-full h-full object-cover" 
+                             onerror="this.style.display='none'; this.alt='${product.name} image not available - showing ${product.emoji} icon instead'; this.nextElementSibling.style.display='flex';">
+                        <div class="w-full h-full flex items-center justify-center text-4xl sm:text-6xl" style="display: none;">
+                            ${product.emoji}
+                        </div>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-semibold mb-2">${product.name}</h3>
+                    <p class="text-lg sm:text-2xl font-bold text-red-600 mb-3 sm:mb-4">₦${product.price}</p>
+                    <div class="flex space-x-2">
+                        <button id="cart-btn-${product.id}" onclick="event.stopPropagation(); addToCart(${product.id})" class="flex-1 bg-blue-600 text-white py-2 px-3 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm">
+                            Add to Cart
+                        </button>
+                        <button onclick="event.stopPropagation(); addToWishlist(${product.id})" class="bg-gray-200 text-gray-700 py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base">
+                            ❤️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cart functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            updateCartDisplay();
+            showNotification(`${product.name} added to cart!`);
+            
+            // Animate the button
+            const button = document.getElementById(`cart-btn-${productId}`);
+            if (button) {
+                const originalText = button.textContent;
+                button.textContent = 'Added to Cart!';
+                button.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                button.classList.add('bg-white', 'hover:bg-gray-100', 'text-black', 'border', 'border-gray-300');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('bg-white', 'hover:bg-gray-100', 'text-black', 'border', 'border-gray-300');
+                    button.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
+                }, 1500);
+            }
+        }
+
+        // Product modal function
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            const modalContent = document.getElementById('productModalContent');
+            
+            modalContent.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="h-64 bg-gray-100 rounded-lg overflow-hidden">
+                        <img src="${product.image}" 
+                             alt="${product.alt}" 
+                             class="w-full h-full object-cover" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="w-full h-full flex items-center justify-center text-8xl" style="display: none;">
+                            ${product.emoji}
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">${product.name}</h3>
+                        <p class="text-3xl font-bold text-red-600 mb-4">₦${product.price}</p>
+                        <p class="text-gray-600 mb-6">Category: ${product.category.charAt(0).toUpperCase() + product.category.slice(1)}</p>
+                        <p class="text-gray-700 mb-6">${product.description}</p>
+                        <div class="flex space-x-4">
+                            <button id="modal-cart-btn-${product.id}" onclick="addToCart(${product.id})" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors">
+                                Add to Cart
+                            </button>
+                            <button onclick="addToWishlist(${product.id})" class="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
+                                Add to Wishlist ❤️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            openModal('productModal');
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+        }
+
+        function updateCartQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                }
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const totalAmount = document.getElementById('totalAmount');
+            const cartCount = document.getElementById('cartCount');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // Update cart count
+            cartCount.textContent = totalItems;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-center text-gray-500 py-8">Your cart is empty</p>';
+                cartTotal.classList.add('hidden');
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center justify-between border-b pb-4 mb-4 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 mr-4 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src="${item.image}" 
+                                     alt="${item.alt}" 
+                                     class="w-full h-full object-cover hover:scale-105 transition-transform" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full flex items-center justify-center text-2xl" style="display: none;">
+                                    ${item.emoji}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">${item.name}</h4>
+                                <p class="text-gray-600">₦${item.price} each</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateCartQuantity(${item.id}, -1)" class="bg-gray-200 text-gray-700 w-8 h-8 rounded-full hover:bg-gray-300 hover:scale-110 transition-all">-</button>
+                            <span class="mx-2 font-semibold">${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${item.id}, 1)" class="bg-gray-200 text-gray-700 w-8 h-8 rounded-full hover:bg-gray-300 hover:scale-110 transition-all">+</button>
+                            <button onclick="removeFromCart(${item.id})" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 hover:scale-105 transition-all ml-2">Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+                cartTotal.classList.remove('hidden');
+                totalAmount.textContent = totalPrice;
+            }
+        }
+
+        // Wishlist functions
+        function addToWishlist(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!wishlist.find(item => item.id === productId)) {
+                wishlist.push(product);
+                updateWishlistDisplay();
+                showNotification(`${product.name} added to wishlist!`);
+            }
+        }
+
+        function removeFromWishlist(productId) {
+            wishlist = wishlist.filter(item => item.id !== productId);
+            updateWishlistDisplay();
+        }
+
+        function updateWishlistDisplay() {
+            const wishlistCount = document.getElementById('wishlistCount');
+            const wishlistItems = document.getElementById('wishlistItems');
+            
+            wishlistCount.textContent = wishlist.length;
+            
+            if (wishlist.length === 0) {
+                wishlistItems.innerHTML = '<p class="text-center text-gray-500 py-8">Your wishlist is empty</p>';
+            } else {
+                wishlistItems.innerHTML = wishlist.map(item => `
+                    <div class="flex items-center justify-between border-b pb-4 mb-4 hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 mr-4 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <img src="${item.image}" 
+                                     alt="${item.alt}" 
+                                     class="w-full h-full object-cover hover:scale-105 transition-transform" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-full h-full flex items-center justify-center text-2xl" style="display: none;">
+                                    ${item.emoji}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">${item.name}</h4>
+                                <p class="text-red-600 font-bold">₦${item.price}</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="addToCart(${item.id})" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hover:scale-105 transition-all">Add to Cart</button>
+                            <button onclick="removeFromWishlist(${item.id})" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 hover:scale-105 transition-all">Remove</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Checkout functions
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty!');
+                return;
+            }
+            
+            const checkoutTotal = document.getElementById('checkoutTotal');
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            checkoutTotal.textContent = totalPrice;
+            
+            closeModal('cartModal');
+            openModal('checkoutModal');
+        }
+
+        function togglePaymentFields() {
+            const bankFields = document.getElementById('bankTransferFields');
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            if (selectedMethod === 'bank') {
+                bankFields.classList.remove('hidden');
+                bankFields.querySelector('input[type="file"]').required = true;
+            } else {
+                bankFields.classList.add('hidden');
+                bankFields.querySelector('input[type="file"]').required = false;
+            }
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Profile photo update
+        function updateProfilePhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePhotoPreview');
+                    const placeholder = document.getElementById('profilePhotoPlaceholder');
+                    
+                    preview.src = e.target.result;
+                    preview.alt = 'Profile Photo Preview';
+                    preview.classList.remove('hidden');
+                    placeholder.style.display = 'none';
+                    
+                    showNotification('Profile photo updated!');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Site logo update
+        function updateSiteLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const siteLogo = document.getElementById('siteLogo');
+                    const logoPreview = document.getElementById('logoPreview');
+                    
+                    // Update both the main logo and preview
+                    siteLogo.src = e.target.result;
+                    siteLogo.alt = 'FreshMart Logo';
+                    siteLogo.style.display = 'block';
+                    siteLogo.nextElementSibling.style.display = 'none';
+                    
+                    logoPreview.src = e.target.result;
+                    logoPreview.alt = 'Site Logo Preview';
+                    
+                    showNotification('Site logo updated!');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Form submissions
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('Message sent successfully!');
+            this.reset();
+        });
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showNotification('Message sent successfully!');
+            this.reset();
+            closeModal('messageModal');
+        });
+
+        document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Create order object
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                items: [...cart],
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                status: 'Processing'
+            };
+            
+            // Add to order history
+            orderHistory.push(order);
+            
+            showNotification('Order placed successfully!');
+            cart = [];
+            updateCartDisplay();
+            closeModal('checkoutModal');
+        });
+
+        // Order history functions
+        function displayOrderHistory() {
+            const orderHistoryContent = document.getElementById('orderHistoryContent');
+            
+            if (orderHistory.length === 0) {
+                orderHistoryContent.innerHTML = '<p class="text-center text-gray-500 py-8">No orders found. Start shopping to see your order history!</p>';
+                return;
+            }
+            
+            orderHistoryContent.innerHTML = orderHistory.map(order => `
+                <div class="border-b pb-6 mb-6 last:border-b-0">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">Order #${order.id}</h3>
+                            <p class="text-gray-600">Date: ${order.date}</p>
+                            <p class="text-sm font-medium text-blue-600">Status: ${order.status}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xl font-bold text-blue-600">₦${order.total}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${order.items.map(item => `
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="flex items-center">
+                                    <span class="text-sm mr-2">${item.emoji}</span>
+                                    ${item.name} x${item.quantity}
+                                </span>
+                                <span>₦${item.price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Notification function
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'978caddc168663c1',t:'MTc1NjgxMjY2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
