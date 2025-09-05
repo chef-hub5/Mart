@@ -61,18 +61,88 @@
             50% { transform: scale(1.2); opacity: 0.7; }
             100% { transform: scale(0.8); opacity: 1; }
         }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .notification {
+            animation: slideInRight 0.3s ease-out, slideOutRight 0.3s ease-in 2.7s;
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal.active { display: flex; align-items: center; justify-content: center; }
         .cart-count { min-width: 20px; height: 20px; }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 smooth-scroll">
     <!-- Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <!-- Top Bar -->
         <div class="bg-blue-600 text-white py-2">
-            <div class="container mx-auto px-4 flex justify-between items-center text-sm">
-                <div>📞 Call us: +234-800-FRESH-MART</div>
+            <div class="container mx-auto px-4 flex justify-end items-center text-sm">
                 <div class="flex space-x-4">
                     <button onclick="openModal('signInModal')" class="hover:underline">Sign In</button>
                     <button onclick="openModal('createAccountModal')" class="hover:underline">Create Account</button>
@@ -98,8 +168,11 @@
                 <!-- Search Bar -->
                 <div class="flex-1 max-w-2xl mx-4 sm:mx-8">
                     <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" oninput="searchProducts()">
+                        <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" oninput="searchProducts()" onfocus="showSearchSuggestions()" onblur="hideSearchSuggestions()">
                         <button onclick="searchProducts()" class="absolute right-2 sm:right-3 top-2 sm:top-3 text-gray-500 hover:text-blue-600">🔍</button>
+                        <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden">
+                            <!-- Search suggestions will be populated here -->
+                        </div>
                     </div>
                 </div>
 
@@ -124,15 +197,16 @@
                     <button onclick="showSection('home'); window.scrollTo(0, 0);" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Home</button>
                     
                     <div class="dropdown relative">
-                        <button onclick="showSection('shop')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors flex items-center whitespace-nowrap text-sm sm:text-base">
+                        <button class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors flex items-center whitespace-nowrap text-sm sm:text-base">
                             Shop <span class="ml-1">▼</span>
                         </button>
                         <div class="dropdown-menu absolute top-full left-0 bg-white text-black shadow-lg rounded-b-lg w-48 hidden z-50">
-                            <a href="#" onclick="filterProducts('fruits')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Fresh Fruits</a>
-                            <a href="#" onclick="filterProducts('vegetables')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Vegetables</a>
-                            <a href="#" onclick="filterProducts('dairy')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Dairy Products</a>
-                            <a href="#" onclick="filterProducts('meat')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Meat & Poultry</a>
-                            <a href="#" onclick="filterProducts('beverages')" class="block px-4 py-2 hover:bg-gray-100 text-sm">Beverages</a>
+                            <a href="#" onclick="showSection('shop'); filterProducts('all')" class="block px-4 py-2 hover:bg-gray-100 text-sm font-medium border-b border-gray-200">All Products</a>
+                            <a href="#" onclick="filterProducts('fruits')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🍎 Fresh Fruits</a>
+                            <a href="#" onclick="filterProducts('vegetables')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥬 Vegetables</a>
+                            <a href="#" onclick="filterProducts('dairy')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥛 Dairy Products</a>
+                            <a href="#" onclick="filterProducts('meat')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥩 Meat & Poultry</a>
+                            <a href="#" onclick="filterProducts('beverages')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🧃 Beverages</a>
                         </div>
                     </div>
 
@@ -399,6 +473,13 @@
         </div>
     </footer>
 
+    <!-- Developer Watermark -->
+    <div class="bg-gray-900 text-gray-400 py-2">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-xs">Developed by <span class="text-blue-400 font-medium">James Dev &lt;/&gt;</span></p>
+        </div>
+    </div>
+
     <!-- Sticky Message Button -->
     <div class="sticky-message">
         <button onclick="openModal('messageModal')" class="message-btn text-white p-4 rounded-full relative">
@@ -482,7 +563,7 @@
                     <h4 class="text-lg font-semibold mb-4 text-gray-800">Site Logo</h4>
                     <div class="text-center mb-4">
                         <div class="w-32 h-16 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
-                            <img id="logoPreview" src="Images/freshmart-logo.png" alt="Site Logo Preview" class="max-w-full max-h-full object-contain">
+                            <img id="logoPreview" src="Images/apples.jpg" alt="Site Logo Preview" class="max-w-full max-h-full object-contain">
                         </div>
                         <input type="file" id="siteLogoUpload" accept="image/*" class="hidden" onchange="updateSiteLogo(this)">
                         <button type="button" onclick="document.getElementById('siteLogoUpload').click()" class="text-blue-600 hover:text-blue-700 text-sm">Change Site Logo</button>
@@ -1068,7 +1149,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             showSection('home');
             displayProducts();
+            createScrollToTopButton();
         });
+
+        // Create scroll to top button
+        function createScrollToTopButton() {
+            const scrollBtn = document.createElement('button');
+            scrollBtn.innerHTML = '↑';
+            scrollBtn.className = 'fixed bottom-20 left-4 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-40 opacity-0 pointer-events-none';
+            scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.body.appendChild(scrollBtn);
+
+            // Show/hide scroll button based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    scrollBtn.classList.remove('opacity-0', 'pointer-events-none');
+                    scrollBtn.classList.add('opacity-100');
+                } else {
+                    scrollBtn.classList.add('opacity-0', 'pointer-events-none');
+                    scrollBtn.classList.remove('opacity-100');
+                }
+            });
+        }
 
         // Check if user is logged in before accessing protected features
         function requireLogin(callback) {
@@ -1132,6 +1234,32 @@
             if (searchQuery) {
                 showSection('shop');
             }
+            hideSearchSuggestions();
+        }
+
+        // Search suggestions
+        function showSearchSuggestions() {
+            const suggestions = document.getElementById('searchSuggestions');
+            const popularSearches = ['Apples', 'Bananas', 'Milk', 'Chicken', 'Tomatoes', 'Oranges'];
+            
+            suggestions.innerHTML = popularSearches.map(term => `
+                <div class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm" onclick="selectSuggestion('${term}')">
+                    🔍 ${term}
+                </div>
+            `).join('');
+            
+            suggestions.classList.remove('hidden');
+        }
+
+        function hideSearchSuggestions() {
+            setTimeout(() => {
+                document.getElementById('searchSuggestions').classList.add('hidden');
+            }, 200);
+        }
+
+        function selectSuggestion(term) {
+            document.getElementById('searchInput').value = term;
+            searchProducts();
         }
 
         // Display products
@@ -1158,7 +1286,7 @@
             }
             
             grid.innerHTML = filteredProducts.map(product => `
-                <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer" onclick="openProductModal(${product.id})">
+                <div class="product-card bg-white rounded-lg shadow-md p-4 sm:p-6 cursor-pointer fade-in" onclick="openProductModal(${product.id})">
                     <div class="h-40 sm:h-48 mb-3 sm:mb-4 bg-gray-100 rounded-lg overflow-hidden">
                         <img id="product-image-${product.id}" 
                              src="${product.image}" 
@@ -1172,7 +1300,7 @@
                     <h3 class="text-base sm:text-lg font-semibold mb-2">${product.name}</h3>
                     <p class="text-lg sm:text-2xl font-bold text-red-600 mb-3 sm:mb-4">₦${product.price}</p>
                     <div class="flex space-x-2">
-                        <button id="cart-btn-${product.id}" onclick="event.stopPropagation(); addToCart(${product.id})" class="flex-1 bg-blue-600 text-white py-2 px-3 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm">
+                        <button id="cart-btn-${product.id}" onclick="event.stopPropagation(); addToCart(${product.id})" class="flex-1 btn-primary text-white py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-sm font-medium">
                             Add to Cart
                         </button>
                         <button onclick="event.stopPropagation(); addToWishlist(${product.id})" class="bg-gray-200 text-gray-700 py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base">
@@ -1201,15 +1329,21 @@
             const button = document.getElementById(`cart-btn-${productId}`);
             if (button) {
                 const originalText = button.textContent;
-                button.textContent = 'Added to Cart!';
-                button.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'text-white');
-                button.classList.add('bg-white', 'hover:bg-gray-100', 'text-black', 'border', 'border-gray-300');
+                button.innerHTML = '<div class="loading-spinner"></div>Adding...';
+                button.disabled = true;
                 
                 setTimeout(() => {
-                    button.textContent = originalText;
-                    button.classList.remove('bg-white', 'hover:bg-gray-100', 'text-black', 'border', 'border-gray-300');
-                    button.classList.add('bg-blue-600', 'hover:bg-blue-700', 'text-white');
-                }, 1500);
+                    button.innerHTML = '✅ Added!';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('bg-green-600');
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('bg-green-600');
+                        button.classList.add('btn-primary');
+                        button.disabled = false;
+                    }, 1000);
+                }, 500);
             }
         }
 
@@ -1392,7 +1526,12 @@
 
         // Modal functions
         function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
+            const modal = document.getElementById(modalId);
+            modal.classList.add('active');
+            const modalContent = modal.querySelector('.bg-white');
+            if (modalContent) {
+                modalContent.classList.add('bounce-in');
+            }
         }
 
         function closeModal(modalId) {
@@ -1445,14 +1584,28 @@
         function handleSignIn(form) {
             const email = form.querySelector('input[type="email"]').value;
             const password = form.querySelector('input[type="password"]').value;
+            const submitBtn = form.querySelector('button[type="submit"]');
             
             if (email && password) {
-                isLoggedIn = true;
-                currentUser = { email: email, name: email.split('@')[0] };
-                updateAuthUI();
-                showNotification('Successfully signed in!');
-                closeModal('signInModal');
-                form.reset();
+                // Show loading state
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<div class="loading-spinner"></div>Signing in...';
+                submitBtn.disabled = true;
+                
+                setTimeout(() => {
+                    isLoggedIn = true;
+                    currentUser = { email: email, name: email.split('@')[0] };
+                    updateAuthUI();
+                    showNotification('Successfully signed in!', 'success');
+                    closeModal('signInModal');
+                    form.reset();
+                    
+                    // Reset button
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }, 1000);
+            } else {
+                showNotification('Please fill in all fields', 'error');
             }
         }
 
@@ -1490,22 +1643,52 @@
             showSection('home');
         }
 
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.add('hidden');
+        }
+
         function updateAuthUI() {
-            const topBar = document.querySelector('.bg-blue-600.text-white .flex.space-x-4');
+            const desktopTopBar = document.querySelector('.hidden.md\\:flex.space-x-4');
+            const mobileMenu = document.querySelector('#mobileMenu .space-y-2');
             
             if (isLoggedIn) {
-                topBar.innerHTML = `
+                // Update desktop menu
+                desktopTopBar.innerHTML = `
                     <span class="text-sm">Welcome, ${currentUser.name}!</span>
                     <button onclick="requireLogin(() => showSection('orderHistory'))" class="hover:underline">Order History</button>
                     <button onclick="requireLogin(() => openModal('profileModal'))" class="hover:underline">Profile Settings</button>
                     <button onclick="handleSignOut()" class="hover:underline">Sign Out</button>
                 `;
+                
+                // Update mobile menu
+                mobileMenu.innerHTML = `
+                    <div class="block w-full text-left py-2 px-2 text-sm font-medium">Welcome, ${currentUser.name}!</div>
+                    <button onclick="requireLogin(() => showSection('orderHistory')); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Order History</button>
+                    <button onclick="requireLogin(() => openModal('profileModal')); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Profile Settings</button>
+                    <button onclick="handleSignOut(); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Sign Out</button>
+                `;
             } else {
-                topBar.innerHTML = `
+                // Update desktop menu
+                desktopTopBar.innerHTML = `
                     <button onclick="openModal('signInModal')" class="hover:underline">Sign In</button>
                     <button onclick="openModal('createAccountModal')" class="hover:underline">Create Account</button>
                     <button onclick="requireLogin(() => showSection('orderHistory'))" class="hover:underline">Order History</button>
                     <button onclick="requireLogin(() => openModal('profileModal'))" class="hover:underline">Profile Settings</button>
+                `;
+                
+                // Update mobile menu
+                mobileMenu.innerHTML = `
+                    <button onclick="openModal('signInModal'); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Sign In</button>
+                    <button onclick="openModal('createAccountModal'); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Create Account</button>
+                    <button onclick="requireLogin(() => showSection('orderHistory')); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Order History</button>
+                    <button onclick="requireLogin(() => openModal('profileModal')); closeMobileMenu()" class="block w-full text-left py-2 px-2 hover:bg-blue-600 rounded text-sm">Profile Settings</button>
                 `;
             }
         }
@@ -1582,10 +1765,13 @@
         }
 
         // Notification function
-        function showNotification(message) {
+        function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
-            notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-            notification.textContent = message;
+            const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            
+            notification.className = `notification fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center`;
+            notification.innerHTML = `<span class="mr-2">${icon}</span>${message}`;
             document.body.appendChild(notification);
             
             setTimeout(() => {
@@ -1598,7 +1784,16 @@
             if (e.target.classList.contains('modal')) {
                 e.target.classList.remove('active');
             }
+            
+            // Close mobile menu when clicking outside
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuButton = e.target.closest('button[onclick="toggleMobileMenu()"]');
+            const mobileMenuContent = e.target.closest('#mobileMenu');
+            
+            if (!mobileMenuButton && !mobileMenuContent && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'978d209243d44052',t:'MTc1NjgxNzM2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a54d3e27d5eded',t:'MTc1NzA3MDg1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
