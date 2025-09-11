@@ -158,7 +158,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <button onclick="showSection('home'); window.scrollTo(0, 0);" class="flex items-center hover:opacity-80 transition-opacity">
-                        <img id="siteLogo" src="Images/apples.jpg" alt="FreshMart Logo" class="h-8 sm:h-12 w-auto mr-2 sm:mr-3" 
+                        <img id="siteLogo" src="Images/freshmart-logo.png" alt="FreshMart Logo" class="h-8 sm:h-12 w-auto mr-2 sm:mr-3" 
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="h-8 w-8 sm:h-12 sm:w-12 bg-blue-600 rounded-lg flex items-center justify-center text-lg sm:text-2xl mr-2 sm:mr-3" style="display: none;">🛒</div>
                         <h1 class="text-xl sm:text-3xl font-bold text-blue-600">FreshMart</h1>
@@ -166,10 +166,10 @@
                 </div>
 
                 <!-- Search Bar -->
-                <div class="flex-1 max-w-2xl mx-4 sm:mx-8">
+                <div class="flex-1 max-w-3xl mx-2 sm:mx-4 md:mx-6 lg:mx-8">
                     <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" oninput="searchProducts()" onfocus="showSearchSuggestions()" onblur="hideSearchSuggestions()">
-                        <button onclick="searchProducts()" class="absolute right-2 sm:right-3 top-2 sm:top-3 text-gray-500 hover:text-blue-600">🔍</button>
+                        <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base" oninput="searchProducts()" onfocus="showSearchSuggestions()" onblur="hideSearchSuggestions()">
+                        <button onclick="searchProducts()" class="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-600 p-1">🔍</button>
                         <div id="searchSuggestions" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden">
                             <!-- Search suggestions will be populated here -->
                         </div>
@@ -196,19 +196,7 @@
                 <div class="flex items-center space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto">
                     <button onclick="showSection('home'); window.scrollTo(0, 0);" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Home</button>
                     
-                    <div class="dropdown relative">
-                        <button class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors flex items-center whitespace-nowrap text-sm sm:text-base">
-                            Shop <span class="ml-1">▼</span>
-                        </button>
-                        <div class="dropdown-menu absolute top-full left-0 bg-white text-black shadow-lg rounded-b-lg w-48 hidden z-50">
-                            <a href="#" onclick="showSection('shop'); filterProducts('all')" class="block px-4 py-2 hover:bg-gray-100 text-sm font-medium border-b border-gray-200">All Products</a>
-                            <a href="#" onclick="filterProducts('fruits')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🍎 Fresh Fruits</a>
-                            <a href="#" onclick="filterProducts('vegetables')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥬 Vegetables</a>
-                            <a href="#" onclick="filterProducts('dairy')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥛 Dairy Products</a>
-                            <a href="#" onclick="filterProducts('meat')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🥩 Meat & Poultry</a>
-                            <a href="#" onclick="filterProducts('beverages')" class="block px-4 py-2 hover:bg-gray-100 text-sm">🧃 Beverages</a>
-                        </div>
-                    </div>
+                    <button onclick="showSection('shop')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Shop</button>
 
                     <button onclick="showSection('about')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">About Us</button>
                     <button onclick="showSection('contact')" class="py-3 sm:py-4 px-2 hover:bg-blue-600 transition-colors whitespace-nowrap text-sm sm:text-base">Contact</button>
@@ -225,7 +213,7 @@
             <!-- Hero Banner -->
             <div class="relative py-20 text-white overflow-hidden">
                 <!-- Hero Background Image -->
-                <img src="Images/bananas.jpg" alt="Fresh groceries and produce - fruits, vegetables, and healthy foods" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <img src="Images/hero-background.jpg" alt="Fresh groceries and produce - fruits, vegetables, and healthy foods" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <!-- Fallback gradient background -->
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800" style="display: none;"></div>
                 <!-- Dark overlay for better text readability -->
@@ -319,7 +307,7 @@
                         </div>
                         <div class="text-center">
                             <div class="w-full h-64 mb-4 bg-gray-100 rounded-lg overflow-hidden">
-                                <img src="Images/mart.jpg" alt="FreshMart store interior - modern grocery store with fresh produce displays and friendly staff serving customers" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <img src="Images/about-freshmart.jpg" alt="FreshMart store interior - modern grocery store with fresh produce displays and friendly staff serving customers" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="w-full h-full flex items-center justify-center text-8xl bg-gradient-to-br from-blue-100 to-blue-200" style="display: none;">🏪</div>
                             </div>
                             <p class="text-gray-600">Serving communities with pride</p>
@@ -563,7 +551,7 @@
                     <h4 class="text-lg font-semibold mb-4 text-gray-800">Site Logo</h4>
                     <div class="text-center mb-4">
                         <div class="w-32 h-16 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-300">
-                            <img id="logoPreview" src="Images/apples.jpg" alt="Site Logo Preview" class="max-w-full max-h-full object-contain">
+                            <img id="logoPreview" src="Images/freshmart-logo.png" alt="Site Logo Preview" class="max-w-full max-h-full object-contain">
                         </div>
                         <input type="file" id="siteLogoUpload" accept="image/*" class="hidden" onchange="updateSiteLogo(this)">
                         <button type="button" onclick="document.getElementById('siteLogoUpload').click()" class="text-blue-600 hover:text-blue-700 text-sm">Change Site Logo</button>
@@ -1795,5 +1783,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a54d3e27d5eded',t:'MTc1NzA3MDg1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97d921b722018fef',t:'MTc1NzYxNDMyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
